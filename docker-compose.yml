@@ -46,3 +46,14 @@ services:
     ports:
       - "9100:9100"
     restart: always
+
+  loki:
+    container_name: loki
+    image: grafana/loki:latest
+    volumes:
+      - ./loki/config:/etc/loki
+      - ./loki/volume:/loki
+    ports:
+      - 3100:3100
+      - 9096:9096
+    restart: always
