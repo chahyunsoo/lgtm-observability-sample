@@ -1,0 +1,29 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /etc/promtail/config/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+    headers:
+      X-Scope-OrgID: monitoring
+
+target_config:
+  sync_period: 10s
+
+scrape_configs:
+  - job_name: app-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          application: coupon-service
+          env: dev
+          __path__: /logs/**/**.log
+    pipeline_stages:
+      - regex:
+          expression: '.*traceId=(?P<trace_id>[a-z0-9]+),.*'
+      - labels:
+          trace_id:

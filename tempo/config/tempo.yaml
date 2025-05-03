@@ -1,0 +1,43 @@
+server:
+  http_listen_port: 3200
+
+ingester:
+  max_block_duration: 5m
+  trace_idle_period: 1s
+  lifecycler:
+    ring:
+      replication_factor: 1
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        http:
+        grpc:
+
+compactor:
+  compaction:
+    max_block_bytes: 100_000_000
+    block_retention: 336h
+
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+      cluster: docker-compose
+  storage:
+    path: /tmp/tempo/generator/wal
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+        send_exemplars: true
+
+storage:
+  trace:
+    backend: local
+    wal:
+      path: /tmp/tempo/wal
+    local:
+      path: /tmp/tempo/blocks
+
+overrides:
+  metrics_generator_processors: [service-graphs, span-metrics]
