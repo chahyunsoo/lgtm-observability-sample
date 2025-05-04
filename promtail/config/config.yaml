@@ -14,16 +14,14 @@ target_config:
   sync_period: 10s
 
 scrape_configs:
-  - job_name: app-logs
+  - job_name: sample-logs
     static_configs:
       - targets:
           - localhost
         labels:
           application: coupon-service
           env: dev
-          __path__: /logs/**/**.log
-    pipeline_stages:
-      - regex:
-          expression: '.*traceId=(?P<trace_id>[a-z0-9]+),.*'
-      - labels:
-          trace_id:
+          __path__: /logs/spring.log
+    relabel_configs:
+      - source_labels: ["__address__"]
+        target_label: address
